@@ -43,9 +43,11 @@ Two steps...
 
 ### Privacy / security concerns
 
-This app does not have access to any code. It might be possible for the app to receive some sensitive data if the Django management command creates an error.
+This app does not have access to any code. You should see this when adding ("installing") the app to your repository:
+![permissions screenshot](https://raw.githubusercontent.com/frnhr/django-forgotten-migrations/master/screenshot-permissions.png "permissions screenshot")
 
-To mitigate this, we recommend adding the script to the end of your CI process (so that if the CI build fails, django-forgotten-migrations will not get any data at all).
+
+however, it might be possible for the app to receive some sensitive data if the Django management command creates an error (the script will send the output to the app). To mitigate this, we recommend adding the script to the end of your CI process (so that if the CI build fails, django-forgotten-migrations will not get any data at all).
 
 #### I can haz spoof your check!
 
