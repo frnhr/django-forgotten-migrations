@@ -21,8 +21,8 @@ CI needs to POST a bit of data to django-forgotten-migrations so that it can cre
 #!/bin/sh
 
 URL="https://forgotten-migrations.tocka.tk/hook/"
-HASH=`git rev-parse HEAD`
-CONTENT=`python manage.py makemigrations --check --dry-run -v2 | tr -d "'"`
+HASH=$(git rev-parse HEAD)
+CONTENT=$(python manage.py makemigrations --check --dry-run -v2 | tr -d "'")
 DATA=$(printf "${HASH}\n${CONTENT}\n")
 printf "django-forgotten-migrations\n"
 printf "${DATA}\n"
