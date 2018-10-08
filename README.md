@@ -2,13 +2,14 @@
 
 GitHub App built with [Probot](https://probot.github.io) that PR checks for forgotten migrations in a Django project.
 
+![PR check example](https://raw.githubusercontent.com/frnhr/django-forgotten-migrations/master/screenshot.png "PR check example")
 
 
 ## Usage
 
 ### 1. Add the GitHub app to your repo
 
-TODO add the app to GitHub Marketplace.
+> TODO add the app to GitHub Marketplace.
 
 ### 2. Add snippet to your CI process
 
