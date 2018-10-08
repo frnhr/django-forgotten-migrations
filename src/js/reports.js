@@ -2,7 +2,7 @@ const db = require('./db')
 
 const NO_CHANGES = 'No changes detected'
 
-module.exports = class Report {
+module.exports = class Reports {
   constructor () {
     this._table = new db.Table('report')
   }
@@ -18,12 +18,7 @@ module.exports = class Report {
     return this._table.create({ hash, content, timestamp })
   }
 
-  async all () {
-    await this._table.init()
-    return this._table.all()
-  }
-
-  dispose() {
+  dispose () {
     this._table.close()
   }
 
@@ -35,7 +30,7 @@ module.exports = class Report {
     return { hash, content }
   }
 
-  static check(content) {
+  static check (content) {
     return content.indexOf(NO_CHANGES) === 0
   }
 }

@@ -1,18 +1,12 @@
 const status = {
-  waiting: (context) => ({
-    name: 'Forgotten Migrations',
-    head_branch: context.payload.pull_request.head.ref,
-    head_sha: context.payload.pull_request.head.sha,
+  waiting: () => ({
     status: 'queued',
     output: {
       title: 'waiting',
       summary: 'Waiting for webhook report from CI.'
     }
   }),
-  success: (context) => ({
-    name: 'Forgotten Migrations',
-    head_branch: context.payload.pull_request.head.ref,
-    head_sha: context.payload.pull_request.head.sha,
+  success: () => ({
     status: 'completed',
     conclusion: 'success',
     completed_at: new Date(),
@@ -21,10 +15,7 @@ const status = {
       summary: 'There are no forgotten migrations!'
     }
   }),
-  timeout: (context) => ({
-    name: 'Forgotten Migrations',
-    head_branch: context.payload.pull_request.head.ref,
-    head_sha: context.payload.pull_request.head.sha,
+  timeout: () => ({
     status: 'completed',
     conclusion: 'timed_out',
     completed_at: new Date(),
@@ -33,10 +24,7 @@ const status = {
       summary: 'Giving up.'
     }
   }),
-  failure: (context, content) => ({
-    name: 'Forgotten Migrations',
-    head_branch: context.payload.pull_request.head.ref,
-    head_sha: context.payload.pull_request.head.sha,
+  failure: (content) => ({
     status: 'completed',
     conclusion: 'failure',
     completed_at: new Date(),
@@ -45,12 +33,9 @@ const status = {
       summary: `Django wants to create migrations:\n${content}`
     }
   }),
-  unexpected: (context) => ({
-    name: 'Forgotten Migrations',
-    head_branch: context.payload.pull_request.head.ref,
-    head_sha: context.payload.pull_request.head.sha,
+  unexpected: () => ({
     status: 'completed',
-    conclusion: 'failed',
+    conclusion: 'failure',
     completed_at: new Date(),
     output: {
       title: 'Unexpected error',
@@ -59,6 +44,26 @@ const status = {
   })
 }
 
-module.exports.create = (key, context, ...rest) => {
-  return context.github.checks.create(context.repo(status[key](context, ...rest)))
+module.exports.createFromPr = (key, context, ...rest) => {
+  context.log.debug('createFromPr', key)
+  const commonArgs = {
+    name: 'Forgotten Migrations',
+    head_branch: context.payload.pull_request.head.ref,
+    head_sha: context.payload.pull_request.head.sha,
+  }
+  const args = Object.assign({}, commonArgs, status[key](...rest))
+  context.github.checks.create(context.repo(args))
+  context.log.debug('createFromPr', key, 'DONE')
+}
+
+module.exports.updateFromCheckRun = (key, context, ...rest) => {
+  context.log.debug('updateFromCheckRun', key)
+  const commonArgs = {
+    owner: context.payload.repository.owner.login,
+    repo: context.payload.repository.name,
+    check_run_id: context.payload.check_run.id,
+  }
+  const args = Object.assign({}, commonArgs, status[key](...rest))
+  context.github.checks.update(context.repo(args))
+  context.log.debug('updateFromCheckRun', key, 'DONE')
 }

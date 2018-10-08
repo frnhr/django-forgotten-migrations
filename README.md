@@ -17,15 +17,17 @@ To use django-forgotten-migrations you need to have some CI process set up for y
 
 CI needs to POST a bit of data to django-forgotten-migrations so that it can create a status check on the PR. To do this, add this script to your project and execute it during CI build process, probably near the end:
 
-```bash
-#!/usr/bin/env bash
+```sh
+#!/bin/sh
 
-HASH=`git rev-parse HEAD`
-CONTENT=`python manage.py makemigrations --check --dry-run -v2`
 URL="https://forgotten-migrations.tocka.tk/hook/"
-DATA="${HASH}
-${CONTENT}"
+HASH=`git rev-parse HEAD`
+CONTENT=`python manage.py makemigrations --check --dry-run -v2 | tr -d "'"`
+DATA=$(printf "${HASH}\n${CONTENT}\n")
+printf "django-forgotten-migrations\n"
+printf "${DATA}\n"
 curl -X POST -H "Content-Type: text/plain" --data-raw "${DATA}" ${URL}
+printf "\n"
 ```
 
 
@@ -37,7 +39,7 @@ Two steps...
 2. django-forgotten-migrations created an "in-progress" status check on the PR to make it visible that a status will be arriving there soon.
 3. The PR goes through its usual CI build process (CircleCI, Travis or some such)
 4. At the end of the CI build, a Django management command is called (see script above). This is where is actuall check happens. 
-5. Imediately after the check, `curl` makes a POST request sending the output of the management command to django-forgotten-migrations server (also in the script above).
+5. Immediately after the check, `curl` makes a POST request sending the output of the management command to django-forgotten-migrations server (also in the script above).
 6. django-forgotten-migrations recieves the data, and updates the "in-progress" check on the PR to either "success" or "fail", depending on the received data.
 
 
