@@ -1,0 +1,50 @@
+{
+  "name": "forgotten-migrations",
+  "version": "1.0.0",
+  "description": "PR checker for forgotten migrations in a Django project",
+  "author": "Fran Hrzenjak <fran.hrzenjak@gmail.com> (tocka.tk/django-forgotten-migrations)",
+  "license": "ISC",
+  "repository": "https://github.com/frnhr/django-forgotten-migrations.git",
+  "homepage": "https://github.com/frnhr/django-forgotten-migrations",
+  "bugs": "https://github.com/frnhr/django-forgotten-migrations/issues",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "dev": "nodemon",
+    "start": "probot run ./index.js",
+    "lint": "standard --fix",
+    "test": "jest && standard",
+    "test:watch": "jest --watch --notify --notifyMode=change --coverage"
+  },
+  "dependencies": {
+    "probot": "^7.2.0",
+    "sqlite3": "^4.0.2"
+  },
+  "devDependencies": {
+    "jest": "^22.4.3",
+    "nodemon": "^1.17.2",
+    "smee-client": "^1.0.2",
+    "standard": "^10.0.3"
+  },
+  "engines": {
+    "node": "8.12.0"
+  },
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "nodemonConfig": {
+    "exec": "npm start",
+    "watch": [
+      ".env",
+      "."
+    ]
+  }
+}
