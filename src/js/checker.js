@@ -67,3 +67,15 @@ module.exports.updateFromCheckRun = (key, context, ...rest) => {
   context.github.checks.update(context.repo(args))
   context.log.debug('updateFromCheckRun', key, 'DONE')
 }
+
+module.exports.updateFromCheckSuite = (key, context, checkRunId, ...rest) => {
+  context.log.debug('updateFromCheckSuite', key)
+  const commonArgs = {
+    owner: context.payload.repository.owner.login,
+    repo: context.payload.repository.name,
+    check_run_id: checkRunId
+  }
+  const args = Object.assign({}, commonArgs, status[key](...rest))
+  context.github.checks.update(context.repo(args))
+  context.log.debug('updateFromCheckSuite', key, 'DONE')
+}

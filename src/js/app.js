@@ -64,7 +64,7 @@ const waitForReport = (context, hash) => new Promise((resolve, reject) => {
   checkReport()
 })
 
-const rerequestHandler = async (context) => {
+const rerequestCheckHandler = async (context) => {
   const hash = context.payload.check_run.head_sha
   checker.updateFromCheckRun('waiting', context)
   waitForReport(context, hash)
@@ -72,7 +72,7 @@ const rerequestHandler = async (context) => {
       if (Reports.check(report.content)) {
         checker.updateFromCheckRun('success', context)
       } else {
-        checker.updateFromCheckRun('failure', context)
+        checker.updateFromCheckRun('failure', context, report.content)
       }
     })
     .catch((err) => {
@@ -85,11 +85,45 @@ const rerequestHandler = async (context) => {
     })
 }
 
+const rerequestSuiteHandler = async (context) => {
+  const hash = context.payload.check_suite.head_sha
+  let checkRunId
+  context.github.checks.listForSuite({
+    check_suite_id: context.payload.check_suite.id,
+    owner: context.payload.repository.owner.login,
+    repo: context.payload.repository.name
+  }).then((response) => {
+    checkRunId = response.data.check_runs[0].id
+    waitForReport(context, hash)
+      .then(({ context, report }) => {
+        if (Reports.check(report.content)) {
+          checker.updateFromCheckSuite('success', context, checkRunId)
+        } else {
+          checker.updateFromCheckSuite('failure', context, checkRunId, report.content)
+        }
+      })
+      .catch((err) => {
+        context.log.warn(`Failure with ${hash}: ${err}`)
+        if (err.message === 'timeout') {
+          checker.updateFromCheckSuite('timeout', context, checkRunId)
+        } else {
+          checker.updateFromCheckSuite('unexpected', context, checkRunId)
+        }
+      })
+  })
+}
+
+const wildcardHandler = async (context) => {
+  context.log.info(`Got ${context.event}.${context.payload.action}`)
+}
+
 module.exports = async (app) => {
   app.route('/hook')
     .use(bodyParser.text())
     .post('/', postHandler)
     .get('/', getHandler)
   app.on(['pull_request.opened', 'pull_request.synchronize', 'pull_request.reopened'], prHandler)
-  app.on(['check_run.rerequested'], rerequestHandler)
+  app.on(['check_run.rerequested'], rerequestCheckHandler)
+  app.on(['check_suite.rerequested'], rerequestSuiteHandler)
+  app.on(['check_suite'], wildcardHandler)
 }
