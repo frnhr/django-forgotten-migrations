@@ -30,7 +30,7 @@ const status = {
     completed_at: new Date(),
     output: {
       title: 'Missing migrations detected!',
-      summary: `Django wants to create migrations:\n${content}`
+      summary: `${content}`
     }
   }),
   unexpected: () => ({

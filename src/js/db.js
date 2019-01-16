@@ -75,6 +75,22 @@ module.exports.Table = class Table {
     })
   }
 
+  async delete (args) {
+    let field, value
+    for (const key in args) {
+      [ field, value ] = [ key, this._quote(key, args[key]) ]
+      break
+    }
+    const sql = `DELETE FROM ${this._table} WHERE ${field}=${value}`
+    console.debug(sql)
+    return new Promise((resolve, reject) => {
+      this.db.run(sql, [], (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
   async get (args) {
     let field, value
     for (const key in args) {

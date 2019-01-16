@@ -15,7 +15,13 @@ module.exports = class Reports {
   async create (hash, content) {
     await this._table.init()
     const timestamp = Math.round(new Date().getTime() / 1000)
+    this._table.delete({ hash })
     return this._table.create({ hash, content, timestamp })
+  }
+
+  async delete (hash) {
+    await this._table.init()
+    await this._table.delete({ hash })
   }
 
   dispose () {

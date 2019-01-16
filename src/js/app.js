@@ -23,6 +23,7 @@ const prHandler = async (context) => {
   const ref = context.payload.pull_request.head.ref
   context.log.info(`Handling ${context.event}.${context.payload.action} for ${hash} "${ref}"`)
   checker.createFromPr('waiting', context)
+  await new Reports().delete(hash)
   waitForReport(context, hash)
     .then(({ context, report }) => {
       if (Reports.check(report.content)) {
@@ -60,13 +61,13 @@ const waitForReport = (context, hash) => new Promise((resolve, reject) => {
     }
     reports.dispose()
   }
-  // noinspection JSIgnoredPromiseFromCall
-  checkReport()
+  setTimeout(checkReport, INTERVAL)
 })
 
 const rerequestCheckHandler = async (context) => {
   const hash = context.payload.check_run.head_sha
   checker.updateFromCheckRun('waiting', context)
+  await new Reports().delete(hash)
   waitForReport(context, hash)
     .then(({ context, report }) => {
       if (Reports.check(report.content)) {
@@ -88,6 +89,7 @@ const rerequestCheckHandler = async (context) => {
 const rerequestSuiteHandler = async (context) => {
   const hash = context.payload.check_suite.head_sha
   let checkRunId
+  await new Reports().delete(hash)
   context.github.checks.listForSuite({
     check_suite_id: context.payload.check_suite.id,
     owner: context.payload.repository.owner.login,
